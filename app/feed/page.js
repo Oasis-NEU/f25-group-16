@@ -8,7 +8,7 @@ export default function Feed() {
 
 
 // placeholder posts (empty)
-const posts = Array.fron({length: 5}, (_, i) => ({ id: i + 1 }));
+const posts = Array.from({length: 3}, (_, i) => ({ id: i + 1 }));
 
 
   return (
@@ -33,9 +33,25 @@ const posts = Array.fron({length: 5}, (_, i) => ({ id: i + 1 }));
 
 
       {/* Feed placeholder posts */}
+      <div className="w-full max-w-4xl flex flex-col gap-4">
+        {posts.map((post) => (
+          <div
+            key={post.id}
+            className="bg-white rounded-lg shadow-md p-4 flex flex-col gap-2 animate-pulse"
+          >
+            {/* Title placeholder */}
+            <div className="h-6 w-3/4 bg-gray-300 rounded"></div>
+            {/* Info line placeholder */}
+            <div className="h-4 w-1/2 bg-gray-300 rounded"></div>
+            {/* Image placeholder */}
+            <div className="h-48 w-full bg-gray-300 rounded"></div>
+            {/* Tags / footer placeholder */}
+            <div className="h-4 w-1/4 bg-gray-300 rounded"></div>
+          </div>
+        ))}
+      </div>
+
      
-
-
     </div>
   );
 }
