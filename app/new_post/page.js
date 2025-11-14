@@ -1,11 +1,7 @@
 "use client";
 import { useState } from "react";
-import { createClient } from "@supabase/supabase-js";
+import { supabase } from "@/lib/supabaseClient";   // ✅ use shared client
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-);
 
 export default function NewPostPage() {
   const [title, setTitle] = useState("");
@@ -18,32 +14,94 @@ export default function NewPostPage() {
   const [loading, setLoading] = useState(false);
 
   // ✅ handle image selection
-  function handleImageChange(e) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const url = URL.createObjectURL(file);
-    setImage({ file, url });
-  }
+    // ✅ handle post upload (no login required)
+    async function handlePost(e) {
+      e.preventDefault();
+  
+      console.log("DEBUG:", {
+        title,
+        date,
+        time,
+        hasImage: !!image,
+      });
+  
+      if (!title || !date || !time || !image) {
+        alert("Please fill in title, date, time, and select an image.");
+        return;
+      }
+  
+      setLoading(true);
+      try {
+        // 1️⃣ Upload image to Supabase Storage
+        const fileExt = image.file.name.split(".").pop();
+        const fileName = `${Date.now()}.${fileExt}`;
+        const filePath = `posts/${fileName}`;
+  
+        const { error: uploadError } = await supabase
+          .storage
+          .from("images")
+          .upload(filePath, image.file);
+  
+        if (uploadError) throw uploadError;
+  
+        // 2️⃣ Get public URL
+        const {
+          data: { publicUrl },
+        } = supabase.storage.from("images").getPublicUrl(filePath);
+  
+        // 3️⃣ Insert post row (no user_id)
+        const { error: insertError } = await supabase.from("posts").insert({
+          title,
+          location,
+          date,         // "2025-11-14" → works with DATE column
+          time,         // "15:00" → works with TIME column
+          image_url: publicUrl,
+          caption,
+          tags: [],     // empty array is fine
+          // created_at will use the DB default now()
+        });
+  
+        if (insertError) throw insertError;
+  
+        alert("✅ Post created successfully!");
+  
+        // 4️⃣ Reset form
+        setTitle("");
+        setDate("");
+        setTime("");
+        setAmpm("AM");
+        setLocation("");
+        setCaption("");
+        setImage(null);
+      } catch (err) {
+        console.error("Error creating post:", err);
+        alert("Error creating post: " + err.message);
+      } finally {
+        setLoading(false);
+      }
+    }  
 
   // ✅ handle post upload
   async function handlePost(e) {
     e.preventDefault();
     console.log("DEBUG image:", image);
-    console.log({ title, date, time, image });
-    if (!title || !date || !time || !image) {
-      alert("Please fill in title, date, time, and select an image.");
+    console.log("DEBUG values:", { title, date, time, image });
+    console.log("HAS:", {
+      hasTitle: !!title,
+      hasDate: !!date,
+      hasTime: !!time,
+      hasImage: !!image,
+    });
+
+    if (!title || !date || !image) {
+      alert("Please fill in title, date, and select an image.");
       return;
-    }
+    }    
+    
 
     setLoading(true);
     try {
-      // Step 1️⃣: Get logged-in user
-      const {
-        data: { user },
-        error: userError,
-      } = await supabase.auth.getUser();
-      if (userError || !user) throw new Error("Not logged in");
-
+  
       // Step 2️⃣: Upload image to Supabase Storage
       const fileExt = image.file.name.split(".").pop();
       const fileName = `${user.id}-${Date.now()}.${fileExt}`;
@@ -63,17 +121,17 @@ export default function NewPostPage() {
       // Step 4️⃣: Insert post record into database
       const { error: insertError } = await supabase.from("posts").insert([
         {
-          user_id: user.id,
           title,
           location,
           date,
-          time: `${time} ${ampm}`,
+          time: time ? `${time} ${ampm}` : null,
           image_url: publicUrl,
+          caption,
           tags: [],
           created_at: new Date(),
         },
       ]);
-
+      
       if (insertError) throw insertError;
 
       alert("✅ Post created successfully!");

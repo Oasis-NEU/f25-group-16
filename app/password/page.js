@@ -1,3 +1,5 @@
+import {supabase} from '../../lib/supabaseClient'; 
+
 export default function Password() {
   return (
     <div>
@@ -5,3 +7,8 @@ export default function Password() {
     </div>
   );
 }
+
+
+const { data, error } = await supabase
+  .from('characters')
+  .select()

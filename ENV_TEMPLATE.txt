@@ -1,0 +1,17 @@
+# Copy this content to create your .env.local file
+# 
+# Instructions:
+# 1. Create a new file named ".env.local" in the root directory
+# 2. Copy the content below into that file
+# 3. Replace the placeholder values with your actual Supabase credentials
+
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url_here
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key_here
+
+# To get your credentials:
+# 1. Go to https://supabase.com/dashboard
+# 2. Select your project
+# 3. Go to Settings > API
+# 4. Copy "Project URL" → NEXT_PUBLIC_SUPABASE_URL
+# 5. Copy "anon public" key → NEXT_PUBLIC_SUPABASE_ANON_KEY
+
