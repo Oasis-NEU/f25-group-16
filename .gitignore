@@ -39,3 +39,13 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+.venv/
+
+test_data.js
+test_data_example.py
+
+*.py
+*.ipynb
+*.sqlite
+test_*.*
