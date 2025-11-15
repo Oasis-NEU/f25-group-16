@@ -44,3 +44,8 @@ next-env.d.ts
 
 test_data.js
 test_data_example.py
+
+*.py
+*.ipynb
+*.sqlite
+test_*.*
